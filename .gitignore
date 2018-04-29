@@ -1,2 +1,4 @@
 data/
 venv/
+nohup.out
+**/.ipynb_checkpoints
