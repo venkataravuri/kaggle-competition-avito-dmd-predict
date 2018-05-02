@@ -2,8 +2,8 @@ import os
 
 # -----------------------------------------------------------------------
 # Generate features
-cmd = "python run_data.py"
-os.system(cmd)
+# cmd = "python run_data.py"
+# os.system(cmd)
 
 # -----------------------------------------------------------------------
 # Train LightGBM model

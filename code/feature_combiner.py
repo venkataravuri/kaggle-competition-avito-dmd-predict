@@ -58,7 +58,8 @@ def main():
 
     feature_names = ['feature_category_encoding',
                      'feature_date',
-                     'feature_text']
+                     'feature_text',
+                     'feature_aggregates']
 
     combiner = Combiner(feature_names=feature_names,
                         logger=logger)

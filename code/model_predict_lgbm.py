@@ -26,15 +26,16 @@ def load_combined_features(logger):
 
     return test
 
+
 def load_model(logger):
     t0 = time()
     MODEL_FILE_NAME = "lightgbm_model"
     model_file = os.path.join(config.DATA_MODELS_DIR, MODEL_FILE_NAME + config.FEAT_FILE_SUFFIX)
     logger.info("Loading %s ..." % model_file)
-    model = pkl_utils._load(model_file)
+    lightgbm_model = lgb.Booster(model_file=model_file)  # init model
     logger.info('Loading %s model took: %s minutes' % (MODEL_FILE_NAME, round((time() - t0) / 60, 1)))
 
-    return model
+    return lightgbm_model
 
 
 def main():
@@ -48,6 +49,8 @@ def main():
     test_features = load_combined_features(logger)
 
     x_test_csr = csr_matrix(hstack([test_raw[config.NUMBER_FEATURES], test_features]))
+    logger.info('Test data shape: %s' % str(x_test_csr.shape))
+
     del train_raw
     gc.collect()
 

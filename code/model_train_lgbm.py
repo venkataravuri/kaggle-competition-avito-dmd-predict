@@ -40,6 +40,7 @@ def main():
     train_features = load_combined_features(logger)
 
     x_train_csr = csr_matrix(hstack([train_raw[config.NUMBER_FEATURES], train_features]))
+    logger.info('Training data shape: %s' % str(x_train_csr.shape))
 
     x_train, x_valid, y_train, y_valid = train_test_split(x_train_csr, train_raw[config.TARGET_FEATURE], test_size=0.20,
                                                           random_state=42)
@@ -48,7 +49,7 @@ def main():
     t0 = time()
     lightgbm_model = lgb.train(config.LGBM_PARAMS, lgb.Dataset(x_train, label=y_train), config.LGBM_NUM_ROUNDS,
                                valid_sets=lgb.Dataset(x_valid, label=y_valid), verbose_eval=50,
-                               early_stopping_rounds=20)
+                               early_stopping_rounds=config.LGBM_EARLY_STOPPING_ROUNDS)
     logger.info('Training LightGBM model took: %s minutes' % round((time() - t0) / 60, 1))
 
     # Save model
@@ -56,7 +57,7 @@ def main():
     MODEL_FILE_NAME = "lightgbm_model"
     model_file = os.path.join(config.DATA_MODELS_DIR, MODEL_FILE_NAME + config.FEAT_FILE_SUFFIX)
     logger.info("Save to %s" % model_file)
-    pkl_utils._save(model_file, lightgbm_model)
+    lightgbm_model.save_model(model_file, num_iteration=lightgbm_model.best_iteration)
     logger.info('Saving %s lightgbm model took: %s minutes' % (MODEL_FILE_NAME, round((time() - t0) / 60, 1)))
 
 
