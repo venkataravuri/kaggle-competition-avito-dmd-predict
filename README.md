@@ -34,6 +34,10 @@ https://www.kaggle.com/codename007/avito-eda-fe-time-series-dt-visualization
         df[col + '_length'] = df[col].apply(lambda txt: len(txt) if type(txt) == unicode else 0).astype('uint32')
         df.drop([col], axis=1, inplace=True)
 
+https://www.kaggle.com/wolfgangb33r/advanced-avito-prediction-xgboost-word-char-counts/code
+
+Snapshot of Train Periods Dataset
+
 
 importance figure
 
