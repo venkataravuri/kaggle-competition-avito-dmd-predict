@@ -1,4 +1,5 @@
 from utils import os_utils
+import numpy as np
 
 # ------------------------ PATH ------------------------
 ROOT_DIR = ".."
@@ -17,19 +18,22 @@ FIGURES_DIR = "%s/figures" % ROOT_DIR
 # provided data
 TRAIN_DATA = "%s/train.csv" % DATA_RAW_DIR
 TEST_DATA = "%s/test.csv" % DATA_RAW_DIR
+PERIODS_TRAIN_DATA = "%s/periods_train.csv" % DATA_RAW_DIR
+PERIODS_TEST_DATA = "%s/periods_test.csv" % DATA_RAW_DIR
 SAMPLE_SUBMISSION_DATA = "%s/sample_submission.csv" % DATA_RAW_DIR
 
 # ------------------------ PARAM ------------------------
 RAW_DATA_ROWS = None  # MUST be None
-MAX_TEXT_FEATURES = 2000
+MAX_TEXT_FEATURES = 5000
+SVD_N_COMP = 3
 
 LGBM_NUM_ROUNDS = 5000
 LGBM_EARLY_STOPPING_ROUNDS = 100
 LGBM_PARAMS = {'learning_rate': 0.05,
-               'max_depth': 7,
+               'max_depth': 10,
                'boosting': 'gbdt',
                'objective': 'regression',
-               'metric': ['auc', 'rmse'],
+               'metric': ['rmse'],
                'is_training_metric': True,
                'seed': 19,
                'num_leaves': 128,
@@ -41,7 +45,7 @@ LGBM_PARAMS = {'learning_rate': 0.05,
 CATEGORY_FEATURES = ['region', 'city', 'parent_category_name', 'category_name', 'param_1', 'param_2',
                      'param_3', 'user_type', 'image_top_1']
 TEXT_FEATURES = ['title', 'description']
-NUMBER_FEATURES = ['price', 'item_seq_number']
+NUMBER_FEATURES = ['price']
 ID_FEATURES = ['item_id', 'user_id', 'image']
 DATE_FEATURES = ['activation_date']
 GENERATED_DATE_FEATURES = ['month', 'weekday', 'month_day', 'year_day']
@@ -61,7 +65,6 @@ for column in AGGREGATE_COLUMNS:
     AGGREGATE_DEAL_FEATURES.append(column + '_deal_probability_std')
     AGGREGATE_PRICE_FEATURES.append(column + '_price_avg')
 
-
 ALL_FEATURES = CATEGORY_FEATURES + TEXT_FEATURES + NUMBER_FEATURES + ID_FEATURES + DATE_FEATURES
 
 FEAT_FILE_SUFFIX = ".pkl"
@@ -72,5 +75,29 @@ DIRS += [DATA_FEATURES_DIR]
 DIRS += [DATA_SUBMISSION_DIR]
 DIRS += [LOG_DIR]
 DIRS += [DATA_MODELS_DIR]
+DIRS += [FIGURES_DIR]
 
 os_utils._create_dirs(DIRS)
+
+# -------------- DTYPES ---------------
+
+DTYPES = {
+    'item_id': str,
+    'user_id': str,
+    'region': str,
+    'city': str,
+    'parent_category_name': str,
+    'category_name': str,
+    'param_1': str,
+    'param_2': str,
+    'param_3': str,
+    'title': str,
+    'description': str,
+    'price': np.float32,
+    'item_seq_number': np.uint32,
+    'activation_date': object,  # in fact yyyy-mm-dd date
+    'user_type': str,
+    'image': str,
+    'image_top_1': np.float32,
+    'deal_probability': np.float32
+}

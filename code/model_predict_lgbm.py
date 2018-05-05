@@ -9,9 +9,6 @@ import data_loader as dl
 import lightgbm as lgb
 import zipfile
 
-pd.set_option('precision', 5)
-pd.set_option('display.float_format', lambda x: '%.5f' % x)
-
 # -------------------------- Main --------------------------
 now = time_utils._timestamp()
 
@@ -39,25 +36,23 @@ def load_model(logger):
 
 
 def main():
-    FNAME = "model_train_lgbm"
+    FNAME = "model_predict_lgbm"
     logname = "%s_%s.log" % (FNAME, now)
     logger = logging_utils._get_logger(config.LOG_DIR, logname)
 
     # Load raw data
-    train_raw, test_raw = dl.load_data()
+    test_raw = dl.load_test_data()
+    gc.collect()
     # Load generated features
     test_features = load_combined_features(logger)
 
-    x_test_csr = csr_matrix(hstack([test_raw[config.NUMBER_FEATURES], test_features]))
-    logger.info('Test data shape: %s' % str(x_test_csr.shape))
-
-    del train_raw
-    gc.collect()
+    #test_features = pd.concat([test_features, test_raw[config.NUMBER_FEATURES]], axis=1)
+    logger.info('Final test data shape: %s' % str(test_features.shape))
 
     lightgbm_model = load_model(logger)
 
     t0 = time()
-    pred = lightgbm_model.predict(x_test_csr)
+    pred = lightgbm_model.predict(test_features)
 
     submission = pd.read_csv(config.SAMPLE_SUBMISSION_DATA, nrows=config.RAW_DATA_ROWS)
     submission['deal_probability'] = pred
@@ -68,7 +63,7 @@ def main():
     # Compress (zip) submission file.
     submission_zip_file = os.path.join(config.DATA_SUBMISSION_DIR, "submission_lightgbm.csv.zip")
     submission_zip = zipfile.ZipFile(submission_zip_file, 'w')
-    submission_zip.write(submission_file, compress_type=zipfile.ZIP_DEFLATED)
+    submission_zip.write(submission_file, arcname="submission_lightgbm.csv", compress_type=zipfile.ZIP_DEFLATED)
     submission_zip.close()
     logger.info('LightGBM submission file generation took: %s minutes' % round((time() - t0) / 60, 1))
 

@@ -15,9 +15,17 @@ os.system(cmd)
 cmd = "python feature_text.py"
 os.system(cmd)
 
+# -----------------------------------------------------------------------
+# Generate aggregate features from title
+cmd = "python feature_aggregates.py"
+os.system(cmd)
+
+# -----------------------------------------------------------------------
+# Generate general features from title
+cmd = "python feature_general.py"
+os.system(cmd)
 
 # -----------------------------------------------------------------------
 # Combine features
 cmd = "python feature_combiner.py"
 os.system(cmd)
-

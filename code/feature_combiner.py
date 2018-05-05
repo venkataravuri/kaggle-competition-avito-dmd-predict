@@ -6,9 +6,6 @@ from utils import logging_utils, pkl_utils, time_utils
 from time import time
 from scipy.sparse import hstack
 
-pd.set_option('precision', 5)
-pd.set_option('display.float_format', lambda x: '%.5f' % x)
-
 # -------------------------- Main --------------------------
 now = time_utils._timestamp()
 
@@ -28,13 +25,14 @@ class Combiner:
         train = pkl_utils._load(train_fname)
         test = pkl_utils._load(test_fname)
         self.logger.info('Loading %s features took: %s minutes' % (feature_name, round((time() - t0) / 60, 1)))
+        self.logger.info('Feature set (%s) train shape - %s, test shape - %s' % (feature_name, train.shape, test.shape))
 
         return train, test
 
     def combine(self):
         for feature_name in self.feature_names:
             train, test = self.load_feature(feature_name)
-            self.x_train, self.x_test = hstack([self.x_train, train]), hstack([self.x_test, test])
+            self.x_train, self.x_test = pd.concat([self.x_train, train], axis=1), pd.concat([self.x_test, test], axis=1)
             self.logger.info('Combined train shape - %s, test shape - %s' % (self.x_train.shape, self.x_test.shape))
 
         return self
@@ -59,7 +57,8 @@ def main():
     feature_names = ['feature_category_encoding',
                      'feature_date',
                      'feature_text',
-                     'feature_aggregates']
+                     'feature_aggregates',
+                     'feature_general']
 
     combiner = Combiner(feature_names=feature_names,
                         logger=logger)

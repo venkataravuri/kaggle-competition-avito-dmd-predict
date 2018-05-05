@@ -8,12 +8,24 @@ from scipy.sparse import csr_matrix, hstack
 import data_loader as dl
 import lightgbm as lgb
 from sklearn.model_selection import train_test_split
+import matplotlib
+# Force matplotlib to not use any Xwindows backend.
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 
-pd.set_option('precision', 5)
-pd.set_option('display.float_format', lambda x: '%.5f' % x)
 
 # -------------------------- Main --------------------------
 now = time_utils._timestamp()
+
+
+def generate_figure_importance(model, logger):
+    fig, ax = plt.subplots(figsize=(12, 18))
+    lgb.plot_importance(model, max_num_features=50, height=0.8, ax=ax)
+    ax.grid(False)
+    plt.title("LightGBM - Feature Importance", fontsize=15)
+    FNAME = config.FIGURES_DIR + 'feature_importance_xgb.png'
+    logger.info('Saving feature importance at, ' + FNAME)
+    plt.gcf().savefig(FNAME)
 
 
 def load_combined_features(logger):
@@ -33,16 +45,15 @@ def main():
     logger = logging_utils._get_logger(config.LOG_DIR, logname)
 
     # Load raw data
-    train_raw, test_raw = dl.load_data()
-    del test_raw
-    gc.collect()
+    train_raw = dl.load_train_data()
     # Load generated features
     train_features = load_combined_features(logger)
 
-    x_train_csr = csr_matrix(hstack([train_raw[config.NUMBER_FEATURES], train_features]))
-    logger.info('Training data shape: %s' % str(x_train_csr.shape))
+    #train_features = pd.concat([train_features, train_raw[config.NUMBER_FEATURES]], axis=1)
+    logger.info('Final training data shape: %s' % str(train_features.shape))
 
-    x_train, x_valid, y_train, y_valid = train_test_split(x_train_csr, train_raw[config.TARGET_FEATURE], test_size=0.20,
+    x_train, x_valid, y_train, y_valid = train_test_split(train_features, train_raw[config.TARGET_FEATURE],
+                                                          test_size=0.20,
                                                           random_state=42)
     gc.collect()
 
@@ -59,6 +70,8 @@ def main():
     logger.info("Save to %s" % model_file)
     lightgbm_model.save_model(model_file, num_iteration=lightgbm_model.best_iteration)
     logger.info('Saving %s lightgbm model took: %s minutes' % (MODEL_FILE_NAME, round((time() - t0) / 60, 1)))
+
+    generate_figure_importance(lightgbm_model, logger)
 
 
 if __name__ == "__main__":

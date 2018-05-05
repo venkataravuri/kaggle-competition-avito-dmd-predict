@@ -7,9 +7,6 @@ import data_loader as dl
 from time import time
 from tqdm import tqdm
 
-pd.set_option('precision', 5)
-pd.set_option('display.float_format', lambda x: '%.5f' % x)
-
 # -------------------------- Main --------------------------
 now = time_utils._timestamp()
 
