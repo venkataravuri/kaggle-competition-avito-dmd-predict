@@ -41,8 +41,8 @@ def main():
     logger = logging_utils._get_logger(config.LOG_DIR, logname)
 
     # Load raw data
-    test_raw = dl.load_test_data()
-    gc.collect()
+    # test_raw = dl.load_test_data()
+    # gc.collect()
     # Load generated features
     test_features = load_combined_features(logger)
 

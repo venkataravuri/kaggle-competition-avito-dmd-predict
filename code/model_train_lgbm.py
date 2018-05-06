@@ -9,10 +9,10 @@ import data_loader as dl
 import lightgbm as lgb
 from sklearn.model_selection import train_test_split
 import matplotlib
+
 # Force matplotlib to not use any Xwindows backend.
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-
 
 # -------------------------- Main --------------------------
 now = time_utils._timestamp()
@@ -49,17 +49,26 @@ def main():
     # Load generated features
     train_features = load_combined_features(logger)
 
-    #train_features = pd.concat([train_features, train_raw[config.NUMBER_FEATURES]], axis=1)
+    train_column_names = list(train_features.columns.values)
+    logger.info("Training set column names: " + str(train_column_names))
+
+    # train_features = pd.concat([train_features, train_raw[config.NUMBER_FEATURES]], axis=1)
     logger.info('Final training data shape: %s' % str(train_features.shape))
 
     x_train, x_valid, y_train, y_valid = train_test_split(train_features, train_raw[config.TARGET_FEATURE],
                                                           test_size=0.20,
                                                           random_state=42)
+    del train_raw
+    del train_features
     gc.collect()
+    lgtrain = lgb.Dataset(x_train, label=y_train, feature_name=train_column_names,
+                          categorical_feature=config.ENCODED_CATEGORY_FEATURES)
+    lgvalid = lgb.Dataset(x_valid, label=y_valid, feature_name=train_column_names,
+                          categorical_feature=config.ENCODED_CATEGORY_FEATURES)
 
     t0 = time()
-    lightgbm_model = lgb.train(config.LGBM_PARAMS, lgb.Dataset(x_train, label=y_train), config.LGBM_NUM_ROUNDS,
-                               valid_sets=lgb.Dataset(x_valid, label=y_valid), verbose_eval=50,
+    lightgbm_model = lgb.train(config.LGBM_PARAMS, lgtrain, config.LGBM_NUM_ROUNDS,
+                               valid_sets=lgvalid, verbose_eval=50,
                                early_stopping_rounds=config.LGBM_EARLY_STOPPING_ROUNDS)
     logger.info('Training LightGBM model took: %s minutes' % round((time() - t0) / 60, 1))
 

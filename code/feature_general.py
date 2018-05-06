@@ -15,6 +15,7 @@ now = time_utils._timestamp()
 def generate_count_features(name, feature_df, df):
     # Fill Not a Number with blank
     df[name].fillna('', inplace=True)
+    df[name] = df[name].str.lower()  # Lowercase all text, so that capitalized words dont get treated differently
     feature_df[name + '_length'] = df[name].apply(lambda x: len(str(x)))
     feature_df[name + '_char_count'] = df[name].apply(len)
     feature_df[name + '_word_count'] = df[name].apply(lambda x: len(x.split()))
@@ -57,16 +58,11 @@ def main():
     generate_count_features('description', train_general, train)
     generate_count_features('description', test_general, test)
 
-    train['price'].fillna(value=-1, inplace=True)
-    #train['price'].replace([0, ''], -1, inplace=True)
-    train_general['log_price'] = np.log(train['price']).replace(-np.inf, 0)
-    #
-    test['price'].fillna(value=-1, inplace=True)
-    #test['price'].replace([0, ''], -1, inplace=True)
-    test_general['log_price'] = np.log(test['price']).replace(-np.inf, 0)
+    train_general['log_price'] = np.log(train["price"] + 0.001)
+    train_general['log_price'].fillna(-999, inplace=True)
 
-    logger.info(test.info())
-    logger.info(test_general.info())
+    test_general['log_price'] = np.log(test["price"] + 0.001)
+    test_general['log_price'].fillna(-999, inplace=True)
 
     train['has_image'] = train['image'].isnull().astype(int)
     test['has_image'] = test['image'].isnull().astype(int)

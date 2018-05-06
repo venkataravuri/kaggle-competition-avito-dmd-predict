@@ -27,9 +27,9 @@ RAW_DATA_ROWS = None  # MUST be None
 MAX_TEXT_FEATURES = 5000
 SVD_N_COMP = 3
 
-LGBM_NUM_ROUNDS = 5000
+LGBM_NUM_ROUNDS = 4000
 LGBM_EARLY_STOPPING_ROUNDS = 100
-LGBM_PARAMS = {'learning_rate': 0.05,
+LGBM_PARAMS = {'learning_rate': 0.03,
                'max_depth': 10,
                'boosting': 'gbdt',
                'objective': 'regression',
@@ -42,8 +42,8 @@ LGBM_PARAMS = {'learning_rate': 0.05,
                'bagging_freq': 5}
 
 # ------------------------ FEATURES -----------------------
-CATEGORY_FEATURES = ['region', 'city', 'parent_category_name', 'category_name', 'param_1', 'param_2',
-                     'param_3', 'user_type', 'image_top_1']
+CATEGORY_FEATURES = ['user_id', 'region', 'city', 'parent_category_name', 'category_name', 'param_1', 'param_2',
+                     'param_3', 'user_type', 'image_top_1', 'item_seq_number']
 TEXT_FEATURES = ['title', 'description']
 NUMBER_FEATURES = ['price']
 ID_FEATURES = ['item_id', 'user_id', 'image']
@@ -51,9 +51,9 @@ DATE_FEATURES = ['activation_date']
 GENERATED_DATE_FEATURES = ['month', 'weekday', 'month_day', 'year_day']
 TARGET_FEATURE = 'deal_probability'
 
-ENCODED_CATEGORY_FEATURES = ['enc_region', 'enc_city', 'enc_parent_category_name', 'enc_category_name', 'enc_param_1',
-                             'enc_param_2',
-                             'enc_param_3', 'enc_user_type', 'enc_image_top_1']
+ENCODED_CATEGORY_FEATURES = ['enc_user_id', 'enc_region', 'enc_city', 'enc_parent_category_name', 'enc_category_name',
+                             'enc_param_1', 'enc_param_2', 'enc_param_3', 'enc_user_type',
+                             'enc_image_top_1', 'enc_item_seq_number']
 
 AGGREGATE_COLUMNS = ['region', 'city', 'parent_category_name', 'category_name',
                      'image_top_1', 'user_type', 'item_seq_number', 'month_day', 'weekday']
